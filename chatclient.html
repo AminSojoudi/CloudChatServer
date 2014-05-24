@@ -1,0 +1,54 @@
+<!DOCTYPE  html>
+<html>
+    <head>
+        <title>Socket.io chat</title>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    </head>
+    <body>
+        <script>
+            var socket;
+            var firstConnect = true;
+            
+            function connect()
+            { 
+                if (firstConnect)
+                {
+                    socket = io.connect(null);  
+                    socket.on('connect' , function(){ $("#status").html("connected to server"); });
+                    socket.on('disconnect' , function(){ $("#status").html("disconnected from server"); });
+                    socket.on('reconnecting' , function(nextRetry){ $("#status").html("reconnecting in " + nextRetry + "miliseconds"); });
+                    socket.on('reconnect-failed' , function(){ $("#status").html("reconnect failed"); });
+                    socket.on('chat' , function(client , message){ $("#messages").append("<b> Client " + client + " Says <b> :" + message + "<br>"); });
+                    firstConnect = false;
+                }
+                else{
+                    socket.socket.reconnect();
+                }
+            }
+            
+            function disconnect()
+            {
+                socket.disconnect();
+            }
+            
+            function send()
+            {
+                socket.send($('#message').val());   
+            }
+        </script>
+        <h1> Socket.io Chat</h1>
+        <div>
+            <p id="status">Waiting for input</p>
+        </div>
+        
+        <button id="connect" onclick="connect()"/>connect</button>
+        <button id="disconnect" onclick="disconnect()"/>disconnect</button>
+        <input id="message"></input>
+        <button id="send" onclick="send()"/>Send</button>
+        <br>
+        <br>Messages: <br><br>
+        <div id="messages"></div>
+    </body>
+
+</html>
